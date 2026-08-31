@@ -17,10 +17,13 @@ document.getElementById('reset').addEventListener('click', reset)
 document.getElementById('undo').addEventListener('click', undo)
 document.getElementById('enginemove').addEventListener('click', engineMove)
 
+const statusDisp = document.getElementById('status')
+
 let opp = document.getElementById('opp')
 let depth = document.getElementById('depth')
 
-let turn = 'red'
+let turn = 1 // Red = 1; Blue = 2
+let winFlag = false
 
 let board = [
     [0, 0, 0, 0, 0, 0, 0],
@@ -43,6 +46,7 @@ function engineMove() {
     if (opp.value != 'twoplayer') {
         console.log('sending move to AI')
         engineworker.postMessage({ board: board, engineType: opp.value, depth: depth.value, turn});
+        statusDisp.textContent = 'Engine is thinking...'
         boardElem.removeEventListener('click', dropUI)
     }
 }
@@ -55,19 +59,21 @@ engineworker.onmessage = (event) => {
 
     const { move, metrics } = event.data
 
+statusDisp.textContent = 'Your move'
+
     make_move(move)
 
-    nps.textContent = `${Math.trunc(metrics.nodes / metrics.timeElapsedMs)}`
+    nps.textContent = `${Math.trunc(metrics.nodes / (metrics.timeElapsedMs / 1000))}`
     nodes_searched.textContent = `${metrics.nodes}`
     time_taken.textContent = `${metrics.timeElapsedMs.toFixed(2)}ms`
 }
 
 function changeTurn() {
-    if (turn === 'red') {
-        turn = 'blue'
+    if (turn == 1) {
+        turn = 2
         root.style.setProperty('--hover-color', 'var(--blue-hover)')
     } else {
-        turn = 'red'
+        turn = 1
         root.style.setProperty('--hover-color', 'var(--red-hover)')
     }
 }
@@ -84,7 +90,7 @@ function dropUI(e) {
 
     make_move(col)
 
-    engineMove(); // If needed
+    if (!winFlag) engineMove(); // If needed
 }
 
 function make_move(col) {
@@ -96,15 +102,30 @@ function make_move(col) {
             console.log(moves)
 
             const circle = columnElems[col].children[i].children[0]
-            circle.classList.add(turn)
+            circle.classList.add(turn == 1 ? 'red' : 'blue')
             circle.style.animation = 'dropCoin 0.5s ease-in'
 
-            changeTurn()
-
             if (checkWin(board)) {
+                winFlag = true;
+                statusDisp.textContent = `${turn == 1 ? 'Red' : 'Blue'} won!!`
                 console.log(`${turn} won`)
                 boardElem.removeEventListener('click', dropUI)
+            } else {
+                // Checking draw
+                let draw = true
+                for (let i = 0; i < 7; i++) {
+                    if (board[0][i] == 0) {
+                        draw = false;
+                        break;
+                    }
+                }
+                if (draw) {
+                    statusDisp.textContent = 'Draw'
+                    boardElem.removeEventListener('click', dropUI)
+                }
             }
+
+            changeTurn()
 
             break
         }
@@ -173,12 +194,14 @@ function checkWin(board) {
 function undo() {
     if (moves.length == 0) return
 
+    statusDisp.textContent = ''
+
     const col = moves.pop()
     changeTurn()
 
     for (let i = 0; i < 6; i++) {
         if (board[i][col] != 0) {
-            columnElems[col].children[i].children[0].classList.remove(turn)
+            columnElems[col].children[i].children[0].classList.remove(turn == 1 ? 'red' : 'blue')
             board[i][col] = 0
             break
         }
@@ -186,8 +209,8 @@ function undo() {
 }
 
 function reset() {
-    turn = 'red'
-    root.style.setProperty('--hover-color', '#FF000040')
+    turn = 1
+    root.style.setProperty('--hover-color', 'var(--red-hover)')
     board = [
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
@@ -197,6 +220,8 @@ function reset() {
         [0, 0, 0, 0, 0, 0, 0],
     ]
     moves = []
+    winFlag = false
+    statusDisp.textContent = ''
     for (const col of columnElems) {
         for (const child of col.children) {
             child.children[0].classList.remove('red')

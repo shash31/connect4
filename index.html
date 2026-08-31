@@ -16,14 +16,17 @@
             <label for="opp">Play against:</label>
             <select name="opp" id="opp">
                 <option value="twoplayer">Two player</option>
-                <option value="baseminimax">Basic minimax(Easy)</option>
+                <option value="baseminimax">Basic minimax</option>
                 <option value="alphabeta">Alpha Beta Move</option>
+                <option value="bigIntBitboard" title="BigInt(64 bit) based bitboard engine(worse in JS)" selected>BigInt Bitboard</option>
+                <option value="smibitboard" title="Split smi bitboard based engine(better for JS)">Smi Bitboard</option>
+                <option value="wasmbitboard" title="C++/WASM based bitboard(should be fastest)">C++/WASM Bitboard</option>
             </select>
         </div>
 
         <div>
             <label for="depth">Depth:</label>
-            <input type="number" name="depth" id="depth" value="8" min="1">
+            <input type="number" name="depth" id="depth" value="10" min="1">
         </div>
 
         <div>
@@ -103,6 +106,7 @@
             <div class="circle-wrapper"><div class="circle"></div></div>
         </div>
     </div>
+    <div id="status"></div>
     <section id="controls">
         <button id="undo">Undo</button>
         <button id="enginemove">AI move</button>
