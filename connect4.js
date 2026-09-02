@@ -3,6 +3,10 @@ const root = document.documentElement;
 const boardElem = document.getElementById("board")
 const columnElems = document.querySelectorAll('.column')
 
+const resetBtn = document.getElementById('reset')
+const undoBtn = document.getElementById('undo')
+const engineBtn = document.getElementById('enginemove')
+
 // For drop animations
 for (const col of columnElems) {
     let i = 1;
@@ -13,9 +17,9 @@ for (const col of columnElems) {
 }
 
 boardElem.addEventListener('click', dropUI)
-document.getElementById('reset').addEventListener('click', reset)
-document.getElementById('undo').addEventListener('click', undo)
-document.getElementById('enginemove').addEventListener('click', engineMove)
+resetBtn.addEventListener('click', reset)
+undoBtn.addEventListener('click', undo)
+engineBtn.addEventListener('click', engineMove)
 
 const statusDisp = document.getElementById('status')
 
@@ -47,7 +51,12 @@ function engineMove() {
         console.log('sending move to AI')
         engineworker.postMessage({ board: board, engineType: opp.value, depth: depth.value, turn});
         statusDisp.textContent = 'Engine is thinking...'
+        
+        // Remove click listeners
         boardElem.removeEventListener('click', dropUI)
+        resetBtn.removeEventListener('click', reset)
+        undoBtn.removeEventListener('click', undo)
+        engineBtn.removeEventListener('click', engineMove)
     }
 }
 
@@ -55,17 +64,21 @@ engineworker.onmessage = (event) => {
     console.log('received move')
     console.log(event.data)
 
+    // Add click listeners
     boardElem.addEventListener('click', dropUI)
+    resetBtn.addEventListener('click', reset)
+    undoBtn.addEventListener('click', undo)
+    engineBtn.addEventListener('click', engineMove)
 
     const { move, metrics } = event.data
 
-statusDisp.textContent = 'Your move'
+    statusDisp.textContent = 'Your move'
 
     make_move(move)
 
     nps.textContent = `${Math.trunc(metrics.nodes / (metrics.timeElapsedMs / 1000))}`
     nodes_searched.textContent = `${metrics.nodes}`
-    time_taken.textContent = `${metrics.timeElapsedMs.toFixed(2)}ms`
+    time_taken.textContent = `${metrics.timeElapsedMs.toFixed(2)} ms`
 }
 
 function changeTurn() {
@@ -91,6 +104,7 @@ function dropUI(e) {
     make_move(col)
 
     if (!winFlag) engineMove(); // If needed
+    // engineMove()
 }
 
 function make_move(col) {

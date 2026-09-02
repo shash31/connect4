@@ -86,7 +86,7 @@ function make_move(board, col, turn) {
 
 function evaluate(board, turn) {
     let oppTurn = turn == 2 ? 1 : 2
-    for (let row = 5; row >= 3; row--) {
+    for (let row = 5; row >= 0; row--) {
         for (let col = 0; col < 7; col++) {
             if (board[row][col] == oppTurn) {
                 let i; let j
@@ -94,7 +94,7 @@ function evaluate(board, turn) {
                 // Check E
                 if (col <= 3) {
                     for (j = col + 1; j < (col + 4); j++) {
-                        if (board[row][j] != oppTurn) {
+                        if (board[row][j] != board[row][col]) {
                             win = false;
                             break;
                         }
@@ -103,10 +103,10 @@ function evaluate(board, turn) {
                 }
 
                 // Check NE
-                win = true;
-                if (col <= 3) {
+                if ((col <= 3) && (row >= 3)) {
+                    win = true;
                     for (i = row - 1, j = col + 1; (i > (row - 4)) && (j < (col + 4)); i--, j++) {
-                        if (board[i][j] != oppTurn) {
+                        if (board[i][j] != board[row][col]) {
                             win = false;
                             break;
                         }
@@ -115,20 +115,22 @@ function evaluate(board, turn) {
                 }
 
                 // Check N
-                win = true;
-                for (i = row - 1; i > (row - 4); i--) {
-                    if (board[i][col] != oppTurn) {
-                        win = false;
-                        break;
+                if (row >= 3) {
+                    win = true;
+                    for (i = row - 1; i > (row - 4); i--) {
+                        if (board[i][col] != board[row][col]) {
+                            win = false;
+                            break;
+                        }
                     }
+                    if (win) return -23;
                 }
-                if (win) return -23;
 
                 // Check NW
-                win = true;
-                if (col >= 3) {
+                if ((col >= 3) && (row >= 3)) {
+                    win = true;
                     for (i = row - 1, j = col - 1; (i > (row - 4)) && (j > (col - 4)); i--, j--) {
-                        if (board[i][j] != oppTurn) {
+                        if (board[i][j] != board[row][col]) {
                             win = false;
                             break;
                         }

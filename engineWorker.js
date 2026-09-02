@@ -21,6 +21,7 @@ self.onmessage = (event) => {
 
         postMessage({ move, metrics })
     } else if (engineType == 'smibitboard') {
+        // smiBitboard(board, depth, turn)
         const [move, metrics] = smiBitboard(board, depth, turn)
 
         postMessage({ move, metrics })

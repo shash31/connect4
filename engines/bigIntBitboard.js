@@ -1,5 +1,3 @@
-// let bottom = 4432676798593n;
-// let top = 141845657554976n;
 const BOTTOM_MASK = Array.from({length: 7}, (_, col) => 1n << BigInt(7 * col));
 const TOP_MASK = Array.from({length: 7}, (_, col) => 1n << BigInt(7 * col + 5));
 
@@ -24,7 +22,6 @@ export default function rootNode(board, depth, turn) {
     const start = performance.now();
     
     let moves = children(mask)
-    if (moves.length == 0) return 0; // Tie
     let best_move = moves[0]
     let alpha = -30
     let beta = 30
