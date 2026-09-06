@@ -45,6 +45,8 @@ const nps = document.getElementById('nps')
 const nodes_searched = document.getElementById('nodes')
 const time_taken = document.getElementById('timeelapsed')
 
+// let debug = true;
+
 function engineMove() {
     // Engine delegation
     if (opp.value != 'twoplayer') {
@@ -57,6 +59,12 @@ function engineMove() {
         resetBtn.removeEventListener('click', reset)
         undoBtn.removeEventListener('click', undo)
         engineBtn.removeEventListener('click', engineMove)
+        // if (!debug) {
+        //     boardElem.removeEventListener('click', dropUI)
+        //     resetBtn.removeEventListener('click', reset)
+        //     undoBtn.removeEventListener('click', undo)
+        //     engineBtn.removeEventListener('click', engineMove)
+        // }
     }
 }
 
@@ -209,6 +217,11 @@ function undo() {
     if (moves.length == 0) return
 
     statusDisp.textContent = ''
+
+    if (winFlag) {
+        winFlag = false
+        boardElem.addEventListener('click', dropUI)
+    }
 
     const col = moves.pop()
     changeTurn()

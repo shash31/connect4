@@ -50,7 +50,19 @@ export default function rootNode(board, depth, turn) {
 function negamax(mask, current_player, depth, alpha, beta, metrics) {
     metrics.nodes++
     let score = evaluate(current_player^mask)
-    if ((score != 0) || (depth == 0)) return score
+    // if ((score != 0) || (depth == 0)) return score
+    if ((score != 0) || (depth == 0)) {
+        if (score != 0) {
+            console.log('score:', score);
+            console.log('depth:', depth);
+            console.log('metrics:', metrics);
+            printBitboard(mask);
+            console.log('mask');
+            printBitboard(current_player);
+            console.log('current player');
+        }
+        return score
+    }
 
     let moves = children(mask)
     if (moves.length == 0) return 0; // Tie
@@ -105,18 +117,18 @@ function evaluate(playerBoard) {
     return 0;
 }
 
-// function get_bit(board, index) {
-//     return (board & (1n << BigInt(index))) !== 0n;
-// }
+function get_bit(board, index) {
+    return (board & (1n << BigInt(index))) !== 0n;
+}
 
-// function printBitboard(board) {
-//     let boardstr = '';
-//     for (let i = 6; i >= 0; i--) {
-//         for (let j = 0; j < 7; j++) {
-//             boardstr += get_bit(board, (7*j)+i) ? '1 ' : '0'
-//         }
-//         boardstr += '\n'
-//     }
-//     console.log(boardstr)
-//     console.log(board)
-// }
+function printBitboard(board) {
+    let boardstr = '';
+    for (let i = 6; i >= 0; i--) {
+        for (let j = 0; j < 7; j++) {
+            boardstr += get_bit(board, (7*j)+i) ? '1 ' : '0'
+        }
+        boardstr += '\n'
+    }
+    console.log(boardstr)
+    console.log(board)
+}
